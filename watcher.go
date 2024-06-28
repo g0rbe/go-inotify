@@ -1,7 +1,6 @@
 package inotify
 
 import (
-	"bytes"
 	"fmt"
 	"path/filepath"
 
@@ -113,7 +112,10 @@ func (i *Watcher) Read() ([]Event, error) {
 				return nil, fmt.Errorf("failed to read name")
 			}
 
-			name = bytes.TrimSuffix(name, []byte{0x0})
+			// Remove padding
+			for name[len(name)-1] == 0x00 {
+				name = name[:len(name)-1]
+			}
 		}
 
 		e := Event{Mask: Mask(mask), Cookie: int(cookie), Name: filepath.Join(i.wds[int(wd)], string(name))}
